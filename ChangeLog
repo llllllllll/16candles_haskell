@@ -1,0 +1,6 @@
+2014-03-05 Joe Jevnik <joejev@gmail.com>
+	* ChangeLog: Added ChangeLog.
+	* Makefile: Added Makefile.
+	* TODO: Added TODO.
+	* Compiler.hs: Removed redundant `liftM (||) ...` call. Better output
+	for the case when no arguments are passed.

@@ -1,0 +1,7 @@
+- Fix the machine to allow for dereferenced register
+  - No one wants the machine to crash with valid code ;_;
+- Add multiple file support
+  - Maybe change to: compile :: String -> FilePath -> IO ()
+  - Allow for jumping between 2 files
+  - More "library" able
+- Add optimization strategies
