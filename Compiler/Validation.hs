@@ -120,7 +120,7 @@ validateOnePOp _ []                = Just MissingParameters
 validateOnePOp _ (_:t:ts)          = Just $ TooManyParameters (t:ts)
 validateOnePOp _ _                 = Just MismatchedParameters
 
--- | Validates the just command.
+-- | Validates the jump commands.
 validateJmpOp :: Expression -> Maybe ExpressionError
 validateJmpOp [InvalidToken _] = Nothing
 validateJmpOp (_:t:ts)  = Just $ TooManyParameters (t:ts)

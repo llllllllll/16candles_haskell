@@ -16,7 +16,7 @@ import Compiler.Data
 import Compiler.Lexer
 import Compiler.Validation
 
-import Control.Monad                  (liftM2,when,unless,void)
+import Control.Monad                  (when,unless,void)
 import Data.ByteString                (ByteString)
 import qualified Data.ByteString as B (appendFile,writeFile,concat,null
                                       ,singleton,unpack)
@@ -27,15 +27,15 @@ import System.Directory               (doesFileExist,doesDirectoryExist)
 import System.Environment             (getArgs)
 import System.Exit                    (exitFailure)
 
+-- | Compiles the source file into the output file.
 compile :: FilePath -> FilePath -> IO ()
 compile src out = do
-    b <- liftM2 (||) (doesDirectoryExist out) (doesFileExist out)
     d <- doesFileExist src
     unless d $ putStrLn ("Cannot find source file '" ++ src ++ "', aborting!")
              >> exitFailure
     srcString <- readFile src
-    v  <- validateSource srcString
-    unless v $ exitFailure
+    v <- validateSource srcString
+    unless v exitFailure
     bs <- toByteCode srcString
     when (B.null bs) exitFailure
     B.writeFile out bs
@@ -65,10 +65,9 @@ handleOpts ([Version,Help],_,_)       = putStrLn versionString
                                         >> putStrLn helpString
 handleOpts ([Help],_,_)               = putStrLn helpString
 handleOpts ([Version],_,_)            = putStrLn versionString
-handleOpts (_,[],_)                   = putStrLn
-                                        "Usage: h16cc [h|v|o FILE-NAME] SOURCE"
-handleOpts ([OutputFile out],ss,_) = compile (head ss) out
-handleOpts ([],ss,_)               = compile (head ss) "a.out"
+handleOpts (_,[],_)                   = putStrLn noArgString
+handleOpts ([OutputFile out],ss,_)    = compile (head ss) out
+handleOpts ([],ss,_)                  = compile (head ss) "a.out"
 
 -- | The help message.
 helpString :: String
@@ -88,6 +87,12 @@ versionString =
            ++ "This is free software; see the source for copying "
            ++ "conditions.  There is NO\nwarranty; not even for MERCHANTABILITY"
            ++ " or FITNESS FOR A PARTICULAR PURPOSE."
+
+-- | The message to display when no arguments are passed.
+noArgString :: String
+noArgString =
+    "h16cc: no input files\nUsage: h16cc [h --help|v --version|o OUTPUT-FILE] "
+    ++ "SOURCE"
 
 main :: IO ()
 main = getArgs >>= handleOpts . getOpt Permute options
