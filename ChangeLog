@@ -4,3 +4,4 @@
 	* TODO: Added TODO.
 	* Compiler.hs: Removed redundant `liftM (||) ...` call. Better output
 	for the case when no arguments are passed.
+	* README.md: Updated README.md to link back to the main project.
