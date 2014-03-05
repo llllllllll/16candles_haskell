@@ -73,9 +73,9 @@ handleOpts ([],ss,_)                  = compile (head ss) "a.out"
 helpString :: String
 helpString =
     "Usage:\n\n    h16cc [OPTION] SOURCE\n\nWhere SOURCE is the .16c "
-    ++ "source file you wish to compile to the file: \"a.out\".\nThe 16candles "
+    ++ "source file you wish to compile to the file: 'a.out'.\nThe 16candles "
            ++ "compiler accecpts the following additional arguments:\n"
-           ++ "\n    -o [OUTPUT-FILE] The file to name the output binary."
+           ++ "\n    -o OUTPUT-FILE   The file to name the output binary."
            ++ "\n    -v --version     Print version information about the this "
            ++ "compiler.\n    -h --help        Prints this message.\n";
 
@@ -94,5 +94,6 @@ noArgString =
     "h16cc: no input files\nUsage: h16cc [h --help|v --version|o OUTPUT-FILE] "
     ++ "SOURCE"
 
+-- | Grabs the args, parses them and operates on it.
 main :: IO ()
 main = getArgs >>= handleOpts . getOpt Permute options

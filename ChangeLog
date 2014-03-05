@@ -3,5 +3,5 @@
 	* Makefile: Added Makefile.
 	* TODO: Added TODO.
 	* Compiler.hs: Removed redundant `liftM (||) ...` call. Better output
-	for the case when no arguments are passed.
+	for the case when no arguments are passed. Changed help output string.
 	* README.md: Updated README.md to link back to the main project.
