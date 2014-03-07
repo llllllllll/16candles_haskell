@@ -5,3 +5,9 @@
 	* Compiler.hs: Removed redundant `liftM (||) ...` call. Better output
 	for the case when no arguments are passed. Changed help output string.
 	* README.md: Updated README.md to link back to the main project.
+
+2014-03-05 Joe Jevnik <joejev@gmail.com>
+	* Compiler/Bytecode.hs: I moved the reverse from after
+	function to before. This fixes jmp resolutions from counting bytes AFTER
+	the call to counting bytes before. This now makes jmp resolution work
+	properly.

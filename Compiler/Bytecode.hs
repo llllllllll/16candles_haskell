@@ -131,14 +131,14 @@ resolveJumps ees = let (ls,es) = populateJumpTable $ ees
 -- list of expressions without the labels.
 populateJumpTable :: [Either Expression ByteString]
                   -> ([(String,Word16)],[(Int,Either Expression ByteString)])
-populateJumpTable es = populateJumpTable' 0 (length es) ([],[]) es
+populateJumpTable es = populateJumpTable' 0 0 ([],[]) $ reverse es
   where
       populateJumpTable' _ _ (ls,rs) [] =
-          (ls,reverse rs)
+          (ls,rs)
       populateJumpTable' c n (ls,rs) (Left [Label l]:es) =
-          populateJumpTable' c (n - 1) ((l,c):ls,rs) es
+          populateJumpTable' c (n + 1) ((l,c):ls,rs) es
       populateJumpTable' c n (ls,rs) (r@(Right bs):es) =
-          populateJumpTable' (c + fromIntegral (B.length bs)) (n - 1)
+          populateJumpTable' (c + fromIntegral (B.length bs)) (n + 1)
                                  (ls,(n,r) : rs) es
       populateJumpTable' c n (ls,rs) (l@(Left _):es) =
-          populateJumpTable' (c + 3) (n - 1) (ls,(n,l) : rs) es
+          populateJumpTable' (c + 3) (n + 1) (ls,(n,l) : rs) es
