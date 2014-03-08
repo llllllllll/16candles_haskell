@@ -38,6 +38,7 @@ module Compiler.Data
 import Control.Monad (liftM)
 import Data.Bits     ((.&.),shift)
 import Data.List     (find,intercalate)
+import Data.Maybe    (fromMaybe)
 import Data.Word     (Word8,Word16)
 
 -- | The command line flags
@@ -54,7 +55,18 @@ data Token = InstrToken Instruction  -- ^ The type of an instruction token.
            | Label String            -- ^ A new label and its name.
            | NewLine                 -- ^ A token showing a '\n'
            | InvalidToken String     -- ^ Any invalid 'Token', with the string.
-             deriving (Show,Eq)
+             deriving (Eq)
+
+-- | Custom 'Show' instance for 'Token'.
+instance Show Token where
+    show (InstrToken i)     = show i
+    show (RegToken r)       = show r
+    show (Literal l)        = show l
+    show (MemoryAddress a)  = '*' : show a
+    show (MemoryRegister r) = '*' : show r
+    show (Label l)          = '@' : l
+    show NewLine            = "\\n"
+    show (InvalidToken t)   = t
 
 -- | An expression.
 type Expression = [Token]
@@ -136,7 +148,17 @@ data Register = Ipt   -- ^ The instruction pointer.
               | R9   -- ^ Free register 9.
               | R9_f
               | R9_b
-                deriving (Show,Eq)
+                deriving (Eq)
+
+-- | Custom 'Show' instance for 'Register'.
+instance Show Register where
+    show r = fromMaybe (error "show :: Register -> String: "
+                        ++ "could not resolve the register")
+             $ liftM snd $ find ((==) r . fst) $ zip regs registerStrings
+      where
+          regs = [ Ipt,Spt,Ac1,Tst,Inp,Ac2,R0,R1,R2,R3,R4,R5,R6,R7,R8,R9
+                 , Inp_r,Inp_w,R0_f,R0_b,R1_f,R1_b,R2_f,R2_b,R3_f,R3_b
+                 , R4_f,R4_b,R5_f,R5_b,R6_f,R6_b,R7_f,R7_b,R8_f,R8_b,R9_f,R9_b ]
 
 -- | Resolves a 'Register' into the bytecode representation.
 resolveReg :: Register -> Word8
@@ -267,7 +289,22 @@ data Instruction = OpAnd
                  | OpRead
                  | OpNop
                  | OpTerm
-                   deriving (Show,Eq)
+                   deriving (Eq)
+
+-- | Custom 'Show' instance for 'Instruction'.
+instance Show Instruction where
+    show i = fromMaybe (error "show :: Instruction -> String: "
+                        ++ "could not resolve the instruction")
+             $ liftM ((\(a,b) -> if null b
+                                   then a
+                                   else '(':a ++ ',':b ++ ")") . snd)
+             $ find ((==) i . fst)
+             $ zip instrs instructionStrings
+      where
+          instrs = [ OpAnd,OpOr,OpXand,OpXor,OpInv,OpLshift,OpRshift,OpAdd,OpSub
+                   , OpMul,OpDiv,OpMod,OpInc,OpDec,OpGt,OpLt,OpGte,OpLte,OpEq
+                   , OpNeq,OpMin,OpMax,OpJmp,OpJmpt,OpJmpf,OpPush,OpPop,OpPeek
+                   , OpFlush,OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite ]
 
 -- | Resolves and 'Instruction' into it's bytecode representation.
 resolveOpcode :: Instruction -> Word8

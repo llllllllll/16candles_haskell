@@ -11,3 +11,9 @@
 	function to before. This fixes jmp resolutions from counting bytes AFTER
 	the call to counting bytes before. This now makes jmp resolution work
 	properly.
+
+2014-03-08 Joe Jevnik <joejev@gmail.com>
+	* Compiler/Data.hs: Added custom show instances so the error output
+	doesn't expose or rely on knowledge of the internal data representation.
+	This will now change things like 'MemReg R0' to '*r0', like it would
+	appear in the source code.
