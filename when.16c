@@ -1,0 +1,11 @@
+= 50 r0
+= 1 r1
+= 1 tst
+when{
+    + r0 r1 r2
+}
++ r0 r1 r2
+unless{
+    - r2 r1 r0
+}
+write r0

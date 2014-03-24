@@ -54,7 +54,10 @@ data Token = InstrToken Instruction  -- ^ The type of an instruction token.
            | MemoryRegister Register -- ^ A dereferenced 'Register'
            | Label String            -- ^ A new label and its name.
            | NewLine                 -- ^ A token showing a '\n'
-           | OpenBrace               -- ^ A token showing '{'
+           | OpenBrace  String       -- ^ A token showing '{'.
+           | CloseBrace String       -- ^ A token showing '}'.
+           | WhenToken               -- ^ A token for the 'when' command.
+           | UnlessToken             -- ^ A token for the 'unless' command.
            | InvalidToken String     -- ^ Any invalid 'Token', with the string.
              deriving (Eq)
 
@@ -67,7 +70,10 @@ instance Show Token where
     show (MemoryRegister r) = '*' : show r
     show (Label l)          = '@' : l
     show NewLine            = "\\n"
-    show OpenBrace          = "{"
+    show (OpenBrace n)      = "{ " ++ n
+    show (CloseBrace n)     = "} " ++ n
+    show WhenToken          = "when"
+    show UnlessToken        = "unless"
     show (InvalidToken t)   = "invalid: " ++ t
 
 -- | An expression.
@@ -291,15 +297,11 @@ data Instruction = OpAnd
                  | OpHalt
                  | OpRead
                  | OpNop
-                 | OpWhen
-                 | OpUnless
-                 | OpCloseB
                  | OpTerm
                    deriving (Eq)
 
 -- | Custom 'Show' instance for 'Instruction'.
 instance Show Instruction where
-    show OpCloseB = "}"
     show i        = fromMaybe (error "show :: Instruction -> String: "
                                ++ "could not resolve the instruction")
                     $ liftM ((\(a,b) -> if null b
@@ -312,7 +314,7 @@ instance Show Instruction where
                    , OpMul,OpDiv,OpMod,OpInc,OpDec,OpGt,OpLt,OpGte,OpLte,OpEq
                    , OpNeq,OpMin,OpMax,OpJmp,OpJmpt,OpJmpf,OpPush,OpPop,OpPeek
                    , OpFlush,OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite
-                   , OpWhen,OpUnless,OpTerm ]
+                   , OpTerm ]
 
 -- | Resolves and 'Instruction' into it's bytecode representation.
 resolveOpcode :: Instruction -> Word8
@@ -324,7 +326,7 @@ resolveParam (Literal n)        = shortToCharList n
 resolveParam (MemoryAddress n)  = shortToCharList n
 resolveParam (RegToken n)       = [resolveReg n]
 resolveParam (MemoryRegister n) = [resolveReg n]
-resolveParam OpenBrace          = []
+resolveParam _                  = []
 
 -- | The list of 'Instruction's as a pair of the name and operator.
 instructionStrings :: [(String,String)]
@@ -364,8 +366,6 @@ instructionStrings = [ ("and",   "&&"  )
                      , ("nop",   ""    )
                      , ("read",  ""    )
                      , ("write", ""    )
-                     , ("when",  ""    )
-                     , ("unless",""    )
                      , ("term",  ""    )  ]
 
 -- | Parses an 'Instruction' out of a 'String'
@@ -377,7 +377,7 @@ parseInstruction cs = liftM fst $ find (\(_,(a,b)) -> cs `elem` [a,b])
       instrs = [ OpAnd,OpOr,OpXand,OpXor,OpInv,OpLshift,OpRshift,OpAdd,OpSub
                , OpMul,OpDiv,OpMod,OpInc,OpDec,OpGt,OpLt,OpGte,OpLte,OpEq,OpNeq
                , OpMin,OpMax,OpJmp,OpJmpt,OpJmpf,OpPush,OpPop,OpPeek,OpFlush
-               , OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite,OpWhen,OpUnless
+               , OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite,OpTerm
                ]
 
 -- | 'Instruction's paired with their pre-suffix opcode.
@@ -418,9 +418,6 @@ instrOpPairs = [ (OpAnd,    0x00)
                , (OpHalt,   0x68)
                , (OpRead,   0x69)
                , (OpNop,    0x6a)
-               , (OpWhen,   0x6b)
-               , (OpUnless, 0x6c)
-               , (OpCloseB, 0x6d)
                , (OpTerm,   0xff) ]
 
 -- | A bytecode operator suffix.

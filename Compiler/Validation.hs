@@ -26,7 +26,8 @@ validateSource :: String -> IO Bool
 validateSource src =
     let es = map (second (fromMaybe (error "validateSource: caught Nothing")))
              $ filter (isJust . snd) $ map (second validateExpression)
-             $ zip [0..] $ buildExressions . tokenize $ src
+             $ zip [0..] $ resolveWhenUnless . buildExpressions
+             . resolveBraces . tokenize $ src
     in case (es,matchBraces src) of
            ([],Nothing)     -> return True
            (_,Nothing)      -> mapM_ printErrMsg es >> return False
@@ -50,9 +51,6 @@ validateExpression _                  = Just $ MissingInstruction
 
 -- | Validates an 'Instruction' expression.
 validateInstruction :: Instruction -> Expression -> Maybe ExpressionError
-validateInstruction OpWhen   = validateWhenUnless
-validateInstruction OpUnless = validateWhenUnless
-validateInstruction OpCloseB = const Nothing
 validateInstruction n
     | n `elem` binOps        = validateBinOp
     | n `elem` unOps         = validateUnOp
@@ -66,14 +64,9 @@ validateInstruction n
                    , OpDiv,OpMod,OpMod,OpMin,OpMax ]
       unOps      = [ OpInv,OpInc,OpDec,OpSet,OpSwap ]
       cmpOps     = [ OpGt,OpLt,OpEq,OpNeq,OpGte,OpLte ]
-      noParamOps = [ OpFlush,OpHalt,OpNop ]
+      noParamOps = [ OpFlush,OpHalt,OpNop,OpTerm ]
       onePOps    = [ OpPush,OpWrite,OpPop,OpPeek,OpRead ]
       jmpOps     = [ OpJmp,OpJmpt,OpJmpf ]
-
--- | Checks if when or unless are formed properly.
-validateWhenUnless :: Expression -> Maybe ExpressionError
-validateWhenUnless [OpenBrace] = Nothing
-validateWhenUnless _           = Just ExpectedOpeningBrace
 
 -- | Checks if a binary operation is formed as a valid 'Expression'.
 validateBinOp :: Expression -> Maybe ExpressionError

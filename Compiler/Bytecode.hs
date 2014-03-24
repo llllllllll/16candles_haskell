@@ -26,13 +26,18 @@ import System.Exit                    (exitFailure)
 
 
 toByteCode :: String -> IO ByteString
-toByteCode src = let (ms,bs) = (resolveJumps . toUnresolvedJumps
-                                . buildExressions . tokenize) src
+toByteCode src = let (ms,bs) = processSrc src
                  in if null ms
                       then return $ B.concat $ reverse bs
                       else mapM_ (putStrLn . errorJumpMiss) ms
                            >> return B.empty
   where
+      processSrc = resolveJumps
+                   . toUnresolvedJumps
+                   . resolveWhenUnless
+                   . buildExpressions
+                   . resolveBraces
+                   . tokenize
       errorJumpMiss j@(JumpMiss label line) = "Error: Line " ++ show line
                                               ++ ":\n  " ++ showJumpMiss j
 
@@ -90,7 +95,7 @@ getSuffix (InstrToken i:ps)
     | otherwise       = NoSuffix
 
 -- -----------------------------------------------------------------------------
---
+-- Jump resolution
 
 -- | Generates a list of bytecode 'Expression's or an unresolved jump.
 toUnresolvedJumps :: [Expression] -> [Either Expression ByteString]
