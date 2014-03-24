@@ -49,7 +49,7 @@ getToken = first parseToken . grabString . dropWhile (== ' ')
 parseToken :: String -> Token
 parseToken "\n"     = NewLine
 parseToken "{"      = OpenBrace
-parseToken "}"      = CloseBrace
+parseToken "}"      = InstrToken OpCloseB
 parseToken ('@':cs) = Label cs
 parseToken ('*':cs)
     | cs `elem` registerStrings = MemoryRegister

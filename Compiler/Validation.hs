@@ -34,15 +34,14 @@ validateSource src =
                                >> return False
            (_,Just n)       -> printBraceErr n >> return False
   where
-      printBraceErr l    = putStrLn $ "Error: Line " ++ show (l + 1) ++ ":\n "
-                           ++ "Mismatched braces."
+      printBraceErr l    = putStrLn $ "Error: Line " ++ show (l + 1) ++ ":\n  "
+                           ++ "Mismatched braces"
       printErrMsg (l,ee) = putStrLn $ "Error: Line " ++ show (l + 1) ++ ":\n  "
                            ++ showExprError ee
 
 -- | Validates a given expression return 'Nothing' if the 'Expression' is valid.
 validateExpression :: Expression -> Maybe ExpressionError
 validateExpression []                 = Nothing
-validateExpression (CloseBrace:_)     = Nothing
 validateExpression (InvalidToken t:_) = Just $ UnknownInstruction t
 validateExpression (Label _:t:ts)     = Just $ TooManyParameters (t:ts)
 validateExpression (Label _:_)        = Nothing
@@ -53,6 +52,7 @@ validateExpression _                  = Just $ MissingInstruction
 validateInstruction :: Instruction -> Expression -> Maybe ExpressionError
 validateInstruction OpWhen   = validateWhenUnless
 validateInstruction OpUnless = validateWhenUnless
+validateInstruction OpCloseB = const Nothing
 validateInstruction n
     | n `elem` binOps        = validateBinOp
     | n `elem` unOps         = validateUnOp

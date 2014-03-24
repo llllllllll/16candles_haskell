@@ -17,3 +17,11 @@
 	doesn't expose or rely on knowledge of the internal data representation.
 	This will now change things like 'MemReg R0' to '*r0', like it would
 	appear in the source code.
+
+2014-03-23 Joe Jevnik <joejev@gmail.com>
+	* Compiler/Data.hs: Added new data types and definitions for the when
+	and unless commands.
+	* Compiler/Lexer.hs: Added new lexing rules for braces and the 2 new
+	operations.
+	* Compiler/Bytecode.hs: Added new bytecode translation rules for braces,
+	when, and unless.

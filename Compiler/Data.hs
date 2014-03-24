@@ -55,7 +55,6 @@ data Token = InstrToken Instruction  -- ^ The type of an instruction token.
            | Label String            -- ^ A new label and its name.
            | NewLine                 -- ^ A token showing a '\n'
            | OpenBrace               -- ^ A token showing '{'
-           | CloseBrace              -- ^ A token showing '}'
            | InvalidToken String     -- ^ Any invalid 'Token', with the string.
              deriving (Eq)
 
@@ -69,7 +68,6 @@ instance Show Token where
     show (Label l)          = '@' : l
     show NewLine            = "\\n"
     show OpenBrace          = "{"
-    show CloseBrace         = "}"
     show (InvalidToken t)   = "invalid: " ++ t
 
 -- | An expression.
@@ -294,16 +292,14 @@ data Instruction = OpAnd
                  | OpRead
                  | OpNop
                  | OpWhen
-                 | OpNehw
                  | OpUnless
-                 | OpSselnu
+                 | OpCloseB
                  | OpTerm
                    deriving (Eq)
 
 -- | Custom 'Show' instance for 'Instruction'.
 instance Show Instruction where
-    show OpNehw   = "}"
-    show OpSselnu = "}"
+    show OpCloseB = "}"
     show i        = fromMaybe (error "show :: Instruction -> String: "
                                ++ "could not resolve the instruction")
                     $ liftM ((\(a,b) -> if null b
@@ -328,6 +324,7 @@ resolveParam (Literal n)        = shortToCharList n
 resolveParam (MemoryAddress n)  = shortToCharList n
 resolveParam (RegToken n)       = [resolveReg n]
 resolveParam (MemoryRegister n) = [resolveReg n]
+resolveParam OpenBrace          = []
 
 -- | The list of 'Instruction's as a pair of the name and operator.
 instructionStrings :: [(String,String)]
@@ -422,9 +419,8 @@ instrOpPairs = [ (OpAnd,    0x00)
                , (OpRead,   0x69)
                , (OpNop,    0x6a)
                , (OpWhen,   0x6b)
-               , (OpNehw,   0x6c)
-               , (OpUnless, 0x6d)
-               , (OpSselnu, 0x6e)
+               , (OpUnless, 0x6c)
+               , (OpCloseB, 0x6d)
                , (OpTerm,   0xff) ]
 
 -- | A bytecode operator suffix.

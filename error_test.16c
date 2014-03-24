@@ -4,3 +4,7 @@
 = 50 *r0
 = 0 *0x00
 jmp label
+when{
+unless{
+    + r0 r1
+}
