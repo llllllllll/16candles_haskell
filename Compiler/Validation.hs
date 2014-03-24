@@ -23,35 +23,44 @@ import Data.Maybe    (isJust,fromMaybe)
 
 -- | Checks if the source string is valid.
 validateSource :: String -> IO Bool
-validateSource src = do
+validateSource src =
     let es = map (second (fromMaybe (error "validateSource: caught Nothing")))
              $ filter (isJust . snd) $ map (second validateExpression)
              $ zip [0..] $ buildExressions . tokenize $ src
-    if null es
-      then return True
-      else mapM_ printErrMsg es >> return False
+    in case (es,matchBraces src) of
+           ([],Nothing)     -> return True
+           (_,Nothing)      -> mapM_ printErrMsg es >> return False
+           ((e:es'),Just n) -> mapM_ printErrMsg es >> printBraceErr n
+                               >> return False
+           (_,Just n)       -> printBraceErr n >> return False
   where
+      printBraceErr l    = putStrLn $ "Error: Line " ++ show (l + 1) ++ ":\n "
+                           ++ "Mismatched braces."
       printErrMsg (l,ee) = putStrLn $ "Error: Line " ++ show (l + 1) ++ ":\n  "
                            ++ showExprError ee
 
 -- | Validates a given expression return 'Nothing' if the 'Expression' is valid.
 validateExpression :: Expression -> Maybe ExpressionError
 validateExpression []                 = Nothing
+validateExpression (CloseBrace:_)     = Nothing
 validateExpression (InvalidToken t:_) = Just $ UnknownInstruction t
 validateExpression (Label _:t:ts)     = Just $ TooManyParameters (t:ts)
 validateExpression (Label _:_)        = Nothing
 validateExpression (InstrToken n:cs)  = validateInstruction n cs
 validateExpression _                  = Just $ MissingInstruction
 
+-- | Validates an 'Instruction' expression.
 validateInstruction :: Instruction -> Expression -> Maybe ExpressionError
+validateInstruction OpWhen   = validateWhenUnless
+validateInstruction OpUnless = validateWhenUnless
 validateInstruction n
-    | n `elem` binOps     = validateBinOp
-    | n `elem` unOps      = validateUnOp
-    | n `elem` cmpOps     = validateCmpOp
-    | n `elem` noParamOps = validateNoParamOp
-    | n `elem` onePOps    = validateOnePOp n
-    | n `elem` jmpOps     = validateJmpOp
-    | otherwise           = validateMset
+    | n `elem` binOps        = validateBinOp
+    | n `elem` unOps         = validateUnOp
+    | n `elem` cmpOps        = validateCmpOp
+    | n `elem` noParamOps    = validateNoParamOp
+    | n `elem` onePOps       = validateOnePOp n
+    | n `elem` jmpOps        = validateJmpOp
+    | otherwise              = validateMset
   where
       binOps     = [ OpAnd,OpOr,OpXand,OpXor,OpLshift,OpRshift,OpAdd,OpSub,OpMul
                    , OpDiv,OpMod,OpMod,OpMin,OpMax ]
@@ -60,6 +69,11 @@ validateInstruction n
       noParamOps = [ OpFlush,OpHalt,OpNop ]
       onePOps    = [ OpPush,OpWrite,OpPop,OpPeek,OpRead ]
       jmpOps     = [ OpJmp,OpJmpt,OpJmpf ]
+
+-- | Checks if when or unless are formed properly.
+validateWhenUnless :: Expression -> Maybe ExpressionError
+validateWhenUnless [OpenBrace] = Nothing
+validateWhenUnless _           = Just ExpectedOpeningBrace
 
 -- | Checks if a binary operation is formed as a valid 'Expression'.
 validateBinOp :: Expression -> Maybe ExpressionError
@@ -153,3 +167,16 @@ isRegOrLit :: Token -> Bool
 isRegOrLit (RegToken _) = True
 isRegOrLit (Literal _)  = True
 isRegOrLit _            = False
+
+-- | Returns 'Nothing' if the braces match, or 'Just' n where n is the line
+-- of the mismatch.
+matchBraces :: String -> Maybe Int
+matchBraces = matchBraces' 0 0
+  where
+      matchBraces' 0 _ ""        = Nothing
+      matchBraces' _ l ""        = Just l
+      matchBraces' d l ('\n':cs) = matchBraces' d (l + 1) cs
+      matchBraces' d l ('{':cs)  = matchBraces' (d + 1) l cs
+      matchBraces' 0 l ('}':cs)  = Just l
+      matchBraces' d l ('}':cs)  = matchBraces' (d - 1) l cs
+      matchBraces' d l (_:cs)    = matchBraces' d l cs

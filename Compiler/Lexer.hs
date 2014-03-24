@@ -36,16 +36,20 @@ getToken = first parseToken . grabString . dropWhile (== ' ')
   where
       grabString ""             = ("\n","")
       grabString ('\n':cs)      = ("\n",cs)
+      grabString ('{':cs)       = ("{",cs)
       grabString ('#':cs)       = grabString $ dropWhile (/= '\n') cs
       grabString cs             = takeNewSpace cs ""
       takeNewSpace "" rs        = (reverse rs,"")
       takeNewSpace (' ':cs) rs  = (reverse rs,cs)
       takeNewSpace ('\n':cs) rs = (reverse rs,'\n':cs)
+      takeNewSpace ('{':cs)  rs = (reverse rs,'{':cs)
       takeNewSpace (c:cs) rs    = takeNewSpace cs (c:rs)
 
 -- | Parses a 'Token' out of a 'String'.
 parseToken :: String -> Token
-parseToken ['\n']   = NewLine
+parseToken "\n"     = NewLine
+parseToken "{"      = OpenBrace
+parseToken "}"      = CloseBrace
 parseToken ('@':cs) = Label cs
 parseToken ('*':cs)
     | cs `elem` registerStrings = MemoryRegister

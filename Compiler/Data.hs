@@ -54,6 +54,8 @@ data Token = InstrToken Instruction  -- ^ The type of an instruction token.
            | MemoryRegister Register -- ^ A dereferenced 'Register'
            | Label String            -- ^ A new label and its name.
            | NewLine                 -- ^ A token showing a '\n'
+           | OpenBrace               -- ^ A token showing '{'
+           | CloseBrace              -- ^ A token showing '}'
            | InvalidToken String     -- ^ Any invalid 'Token', with the string.
              deriving (Eq)
 
@@ -66,7 +68,9 @@ instance Show Token where
     show (MemoryRegister r) = '*' : show r
     show (Label l)          = '@' : l
     show NewLine            = "\\n"
-    show (InvalidToken t)   = t
+    show OpenBrace          = "{"
+    show CloseBrace         = "}"
+    show (InvalidToken t)   = "invalid: " ++ t
 
 -- | An expression.
 type Expression = [Token]
@@ -80,6 +84,7 @@ data ExpressionError = MissingParameters
                      | MismatchedParameters
                      | UnknownInstruction String
                      | MissingInstruction
+                     | ExpectedOpeningBrace
                        deriving (Show,Eq)
 
 -- | A jump command that does not have a label associated with it.
@@ -288,23 +293,30 @@ data Instruction = OpAnd
                  | OpHalt
                  | OpRead
                  | OpNop
+                 | OpWhen
+                 | OpNehw
+                 | OpUnless
+                 | OpSselnu
                  | OpTerm
                    deriving (Eq)
 
 -- | Custom 'Show' instance for 'Instruction'.
 instance Show Instruction where
-    show i = fromMaybe (error "show :: Instruction -> String: "
-                        ++ "could not resolve the instruction")
-             $ liftM ((\(a,b) -> if null b
-                                   then a
-                                   else '(':a ++ ',':b ++ ")") . snd)
-             $ find ((==) i . fst)
-             $ zip instrs instructionStrings
+    show OpNehw   = "}"
+    show OpSselnu = "}"
+    show i        = fromMaybe (error "show :: Instruction -> String: "
+                               ++ "could not resolve the instruction")
+                    $ liftM ((\(a,b) -> if null b
+                                          then a
+                                          else '(':a ++ ',':b ++ ")") . snd)
+                    $ find ((==) i . fst)
+                    $ zip instrs instructionStrings
       where
           instrs = [ OpAnd,OpOr,OpXand,OpXor,OpInv,OpLshift,OpRshift,OpAdd,OpSub
                    , OpMul,OpDiv,OpMod,OpInc,OpDec,OpGt,OpLt,OpGte,OpLte,OpEq
                    , OpNeq,OpMin,OpMax,OpJmp,OpJmpt,OpJmpf,OpPush,OpPop,OpPeek
-                   , OpFlush,OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite ]
+                   , OpFlush,OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite
+                   , OpWhen,OpUnless,OpTerm ]
 
 -- | Resolves and 'Instruction' into it's bytecode representation.
 resolveOpcode :: Instruction -> Word8
@@ -354,7 +366,10 @@ instructionStrings = [ ("and",   "&&"  )
                      , ("halt",  ""    )
                      , ("nop",   ""    )
                      , ("read",  ""    )
-                     , ("write", ""    ) ]
+                     , ("write", ""    )
+                     , ("when",  ""    )
+                     , ("unless",""    )
+                     , ("term",  ""    )  ]
 
 -- | Parses an 'Instruction' out of a 'String'
 parseInstruction :: String -> Maybe Instruction
@@ -365,7 +380,8 @@ parseInstruction cs = liftM fst $ find (\(_,(a,b)) -> cs `elem` [a,b])
       instrs = [ OpAnd,OpOr,OpXand,OpXor,OpInv,OpLshift,OpRshift,OpAdd,OpSub
                , OpMul,OpDiv,OpMod,OpInc,OpDec,OpGt,OpLt,OpGte,OpLte,OpEq,OpNeq
                , OpMin,OpMax,OpJmp,OpJmpt,OpJmpf,OpPush,OpPop,OpPeek,OpFlush
-               , OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite ]
+               , OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite,OpWhen,OpUnless
+               ]
 
 -- | 'Instruction's paired with their pre-suffix opcode.
 instrOpPairs :: [(Instruction,Word8)]
@@ -405,6 +421,10 @@ instrOpPairs = [ (OpAnd,    0x00)
                , (OpHalt,   0x68)
                , (OpRead,   0x69)
                , (OpNop,    0x6a)
+               , (OpWhen,   0x6b)
+               , (OpNehw,   0x6c)
+               , (OpUnless, 0x6d)
+               , (OpSselnu, 0x6e)
                , (OpTerm,   0xff) ]
 
 -- | A bytecode operator suffix.
