@@ -54,6 +54,10 @@ data Token = InstrToken Instruction  -- ^ The type of an instruction token.
            | MemoryRegister Register -- ^ A dereferenced 'Register'
            | Label String            -- ^ A new label and its name.
            | NewLine                 -- ^ A token showing a '\n'
+           | OpenBrace  String       -- ^ A token showing '{'.
+           | CloseBrace String       -- ^ A token showing '}'.
+           | WhenToken               -- ^ A token for the 'when' command.
+           | UnlessToken             -- ^ A token for the 'unless' command.
            | InvalidToken String     -- ^ Any invalid 'Token', with the string.
              deriving (Eq)
 
@@ -66,7 +70,11 @@ instance Show Token where
     show (MemoryRegister r) = '*' : show r
     show (Label l)          = '@' : l
     show NewLine            = "\\n"
-    show (InvalidToken t)   = t
+    show (OpenBrace n)      = "{ " ++ n
+    show (CloseBrace n)     = "} " ++ n
+    show WhenToken          = "when"
+    show UnlessToken        = "unless"
+    show (InvalidToken t)   = "invalid: " ++ t
 
 -- | An expression.
 type Expression = [Token]
@@ -80,6 +88,7 @@ data ExpressionError = MissingParameters
                      | MismatchedParameters
                      | UnknownInstruction String
                      | MissingInstruction
+                     | ExpectedOpeningBrace
                        deriving (Show,Eq)
 
 -- | A jump command that does not have a label associated with it.
@@ -293,18 +302,19 @@ data Instruction = OpAnd
 
 -- | Custom 'Show' instance for 'Instruction'.
 instance Show Instruction where
-    show i = fromMaybe (error "show :: Instruction -> String: "
-                        ++ "could not resolve the instruction")
-             $ liftM ((\(a,b) -> if null b
-                                   then a
-                                   else '(':a ++ ',':b ++ ")") . snd)
-             $ find ((==) i . fst)
-             $ zip instrs instructionStrings
+    show i        = fromMaybe (error "show :: Instruction -> String: "
+                               ++ "could not resolve the instruction")
+                    $ liftM ((\(a,b) -> if null b
+                                          then a
+                                          else '(':a ++ ',':b ++ ")") . snd)
+                    $ find ((==) i . fst)
+                    $ zip instrs instructionStrings
       where
           instrs = [ OpAnd,OpOr,OpXand,OpXor,OpInv,OpLshift,OpRshift,OpAdd,OpSub
                    , OpMul,OpDiv,OpMod,OpInc,OpDec,OpGt,OpLt,OpGte,OpLte,OpEq
                    , OpNeq,OpMin,OpMax,OpJmp,OpJmpt,OpJmpf,OpPush,OpPop,OpPeek
-                   , OpFlush,OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite ]
+                   , OpFlush,OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite
+                   , OpTerm ]
 
 -- | Resolves and 'Instruction' into it's bytecode representation.
 resolveOpcode :: Instruction -> Word8
@@ -316,6 +326,7 @@ resolveParam (Literal n)        = shortToCharList n
 resolveParam (MemoryAddress n)  = shortToCharList n
 resolveParam (RegToken n)       = [resolveReg n]
 resolveParam (MemoryRegister n) = [resolveReg n]
+resolveParam _                  = []
 
 -- | The list of 'Instruction's as a pair of the name and operator.
 instructionStrings :: [(String,String)]
@@ -354,7 +365,8 @@ instructionStrings = [ ("and",   "&&"  )
                      , ("halt",  ""    )
                      , ("nop",   ""    )
                      , ("read",  ""    )
-                     , ("write", ""    ) ]
+                     , ("write", ""    )
+                     , ("term",  ""    )  ]
 
 -- | Parses an 'Instruction' out of a 'String'
 parseInstruction :: String -> Maybe Instruction
@@ -365,7 +377,8 @@ parseInstruction cs = liftM fst $ find (\(_,(a,b)) -> cs `elem` [a,b])
       instrs = [ OpAnd,OpOr,OpXand,OpXor,OpInv,OpLshift,OpRshift,OpAdd,OpSub
                , OpMul,OpDiv,OpMod,OpInc,OpDec,OpGt,OpLt,OpGte,OpLte,OpEq,OpNeq
                , OpMin,OpMax,OpJmp,OpJmpt,OpJmpf,OpPush,OpPop,OpPeek,OpFlush
-               , OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite ]
+               , OpSet,OpMset,OpSwap,OpHalt,OpNop,OpRead,OpWrite,OpTerm
+               ]
 
 -- | 'Instruction's paired with their pre-suffix opcode.
 instrOpPairs :: [(Instruction,Word8)]
