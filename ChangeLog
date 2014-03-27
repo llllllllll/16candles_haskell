@@ -31,3 +31,8 @@
 	* Compiler/Lexer.hs: Resolution of braces, whens, and unlesses happen
 	here
 	* Compiler/Vadidation: Added helper funtions for clarity.
+
+2014-03-23 Joe Jevnik <joejev@gmail.com>
+	* Compiler/Bytecode.hs: Added the cmp ops into the binOps list and then
+	changed how suffix resolution works for binOps to properly assign op
+	suffixes to the cmp ops.
