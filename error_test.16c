@@ -5,6 +5,7 @@
 = 0 *0x00
 jmp label
 when{
-unless{
-    + r0 r1
+    unless{
+        + r0 r1
+    }
 }

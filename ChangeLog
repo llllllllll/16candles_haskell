@@ -31,3 +31,7 @@
 	* Compiler/Lexer.hs: Resolution of braces, whens, and unlesses happen
 	here
 	* Compiler/Vadidation: Added helper funtions for clarity.
+
+2014-03-29 Joe Jevnik <joejev@gmail.com>
+	* Compiler/Data.hs: Updated the regnos to reflect the changes made on
+	the machine. (remove hole from inp_w and r0_f).
