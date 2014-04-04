@@ -20,7 +20,7 @@ import Compiler.Data
 import Compiler.Lexer
 
 import Data.ByteString                (ByteString)
-import qualified Data.ByteString as B (pack,length,empty,concat)
+import qualified Data.ByteString as B (pack,unpack,length,empty,concat)
 import Data.List                      (find)
 import System.Exit                    (exitFailure)
 
@@ -47,11 +47,11 @@ toByteCode src = let (ms,bs) = processSrc src
 -- | The bianry operators.
 binOps :: [Instruction]
 binOps = [ OpAnd,OpOr,OpXand,OpXor,OpLshift,OpRshift,OpAdd,OpSub,OpMul,OpDiv
-         , OpMod,OpMod,OpMin,OpMax ]
+         , OpMod,OpMod,OpMin,OpMax,OpGt,OpLt,OpEq,OpNeq,OpGte,OpLte ]
 
 -- | Operators with exactly two paramaters.
 unOps :: [Instruction]
-unOps = [ OpInv,OpInc,OpDec,OpSet,OpSwap,OpGt,OpLt,OpEq,OpNeq,OpGte,OpLte ]
+unOps = [ OpInv,OpInc,OpDec,OpSet,OpSwap ]
 
 -- | Operators with exactly 0 paramaters.
 noParamOps :: [Instruction]
@@ -66,10 +66,10 @@ jmpOps :: [Instruction]
 jmpOps = [ OpJmp,OpJmpt,OpJmpf ]
 
 -- | Pre binary operator suffix.
-preBinOpSuf [Literal _,Literal _,_]   = SuffixLitLit
-preBinOpSuf [Literal _,RegToken _,_]  = SuffixLitReg
-preBinOpSuf [RegToken _,Literal _,_]  = SuffixRegLit
-preBinOpSuf [RegToken _,RegToken _,_] = SuffixRegReg
+preBinOpSuf ((Literal _):(Literal _):_)   = SuffixLitLit
+preBinOpSuf ((Literal _):(RegToken _):_)  = SuffixLitReg
+preBinOpSuf ((RegToken _):(Literal _):_)  = SuffixRegLit
+preBinOpSuf ((RegToken _):(RegToken _):_) = SuffixRegReg
 preBinOpSuf _ = error "preBinOpSuf: Invalid binary operator form"
 
 -- | Pre unary operator suffix.
