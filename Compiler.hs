@@ -72,27 +72,27 @@ handleOpts ([],ss,_)                  = compile (head ss) "a.out"
 -- | The help message.
 helpString :: String
 helpString =
-    "Usage:\n\n    h16cc [OPTION] SOURCE\n\nWhere SOURCE is the .16c "
-    ++ "source file you wish to compile to the file: 'a.out'.\nThe 16candles "
-           ++ "compiler accecpts the following additional arguments:\n"
-           ++ "\n    -o OUTPUT-FILE   The file to name the output binary."
-           ++ "\n    -v --version     Print version information about the this "
-           ++ "compiler.\n    -h --help        Prints this message.\n";
+    "Usage:\n\n    h16cc [OPTION] SOURCE\n\nWhere SOURCE is the .16c \
+    \source file you wish to compile to the file: 'a.out'.\nThe 16candles \
+    \compiler accecpts the following additional arguments:\n\
+    \\n    -o OUTPUT-FILE   The file to name the output binary.\
+    \\n    -v --version     Print version information about the this \
+    \compiler.\n    -h --help        Prints this message.\n"
 
 -- | The version message.
 versionString :: String
 versionString =
-    "The Haskell 16candles compiler: version 0.0.0.1 (2014.3.4)\n"
-    ++ "Copyright (C) 2014 Joe Jevnik.\n"
-           ++ "This is free software; see the source for copying "
-           ++ "conditions.  There is NO\nwarranty; not even for MERCHANTABILITY"
-           ++ " or FITNESS FOR A PARTICULAR PURPOSE."
+    "The Haskell 16candles compiler: version 0.0.0.1 (2014.3.4)\n\
+    \Copyright (C) 2014 Joe Jevnik.\n\
+    \This is free software; see the source for copying \
+    \conditions.  There is NO\nwarranty; not even for MERCHANTABILITY\
+    \ or FITNESS FOR A PARTICULAR PURPOSE."
 
 -- | The message to display when no arguments are passed.
 noArgString :: String
 noArgString =
-    "h16cc: no input files\nUsage: h16cc [h --help|v --version|o OUTPUT-FILE] "
-    ++ "SOURCE"
+    "h16cc: no input files\nUsage: h16cc [h --help|v --version|o OUTPUT-FILE] \
+    \SOURCE"
 
 -- | Grabs the args, parses them and operates on it.
 main :: IO ()
