@@ -102,13 +102,13 @@ showJumpMiss (JumpMiss label line) = "Could not resolve label '" ++ label ++ "'"
 -- compilation.
 showExprError :: ExpressionError -> String
 showExprError MissingParameters      =
-    "Missing paramaters"
+    "Missing parameters"
 showExprError (TooManyParameters ts) =
     "Too many paramaters (" ++ (intercalate "," . map show) ts ++ ")"
 showExprError (ExpectedRegister t) =
-    "Expected register paramater instead of '" ++ show t ++ "'"
+    "Expected register parameter instead of '" ++ show t ++ "'"
 showExprError (ExpectedRegOrLit t) =
-    "Expected register or literal paramater instead of '" ++ show t ++ "'"
+    "Expected register or literal parameter instead of '" ++ show t ++ "'"
 showExprError (ExpectedMemory t) =
     "Expected memory address instead of '" ++ show t ++ "'"
 showExprError MismatchedParameters =
