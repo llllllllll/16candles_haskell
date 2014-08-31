@@ -9,7 +9,7 @@
 --
 -- Argument parsing and compilation to bytecode functions.
 
-module Compiler where
+module Main where
 
 import Compiler.Bytecode
 import Compiler.Data
@@ -82,7 +82,7 @@ helpString =
 -- | The version message.
 versionString :: String
 versionString =
-    "The Haskell 16candles compiler: version 0.0.0.1 (2014.3.4)\n\
+    "The Haskell 16candles compiler: version 0.1.0.0 (2014.06.28)\n\
     \Copyright (C) 2014 Joe Jevnik.\n\
     \This is free software; see the source for copying \
     \conditions.  There is NO\nwarranty; not even for MERCHANTABILITY\

@@ -3,7 +3,8 @@
 
 name:                h16cc
 version:             0.1.0.0
-synopsis:            A compiler for 16c
+
+synopsis:            An assembler for 16candles asm to 16candles bytecode.
 -- description:         
 homepage:            https://github.com/llllllllll/h16cc
 license:             GPL-2
