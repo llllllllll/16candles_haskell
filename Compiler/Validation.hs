@@ -132,6 +132,7 @@ validateJmpOp :: Expression -> Maybe ExpressionError
 validateJmpOp [InvalidToken _] = Nothing
 validateJmpOp (_:t:ts)  = Just $ TooManyParameters (t:ts)
 validateJmpOp []        = Just   MissingParameters
+validateJmpOp _         = Just   MismatchedParameters
 
 -- | Validates the mset (:=) command.
 validateMset :: Expression -> Maybe ExpressionError
