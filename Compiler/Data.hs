@@ -470,5 +470,6 @@ suffixLength NoSuffix         = 0
 
 -- | Cast a 'Word16' to a list of 'Word8's
 shortToCharList :: Word16 -> [Word8]
-shortToCharList n  = [ fromIntegral $ (n .&. 0xff00) `shift` (-8)
-                     , fromIntegral $ n .&. 0x00ff ]
+shortToCharList n  = [ fromIntegral $ n .&. 0x00ff
+                     , fromIntegral $ (n .&. 0xff00) `shift` (-8)
+                     ]
