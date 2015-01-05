@@ -1,5 +1,5 @@
 -- |
--- Module      : Compiler.Validation
+-- Module      : Assembler.Validation
 -- Copyright   : Joe Jevnik
 --
 -- License     : GPL-2
@@ -7,16 +7,16 @@
 -- Stability   : stable
 -- Portability : GHC
 --
--- Functions needed in the source validation process of compiling.
+-- Functions needed in the source validation process of assembling.
 
 
-module Compiler.Validation
+module Assembler.Validation
     ( validateSource     -- :: String -> IO Bool
     , validateExpression -- :: Expression -> Maybe ExpressionError
     ) where
 
-import Compiler.Data
-import Compiler.Lexer
+import Assembler.Core
+import Assembler.Lexer
 
 import Control.Arrow (second)
 import Data.Maybe    (isJust,fromMaybe)

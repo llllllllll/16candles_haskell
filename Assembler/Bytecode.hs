@@ -1,5 +1,5 @@
 -- |
--- Module      : Compiler.Bytecode
+-- Module      : Assembler.Bytecode
 -- Copyright   : Joe Jevnik
 --
 -- License     : GPL-2
@@ -12,12 +12,12 @@
 -- -----------------------------------------------------------------------------
 -- Pre image of the operation bytes without their suffixes.
 
-module Compiler.Bytecode
+module Assembler.Bytecode
     ( toByteCode -- :: String -> IO ByteString
     ) where
 
-import Compiler.Data
-import Compiler.Lexer
+import Assembler.Core
+import Assembler.Lexer
 
 import Data.ByteString                (ByteString)
 import qualified Data.ByteString as B (pack,unpack,length,empty,concat)

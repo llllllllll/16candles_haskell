@@ -1,5 +1,5 @@
 -- |
--- Module      : Compiler.Lexer
+-- Module      : Assembler.Lexer
 -- Copyright   : Joe Jevnik
 --
 -- License     : GPL-2
@@ -9,14 +9,14 @@
 --
 -- Functions needed in the lexing process of 16candles source code.
 
-module Compiler.Lexer
+module Assembler.Lexer
     ( buildExpressions  -- :: [Token] -> [Expression]
     , tokenize          -- :: String -> [Token]
     , resolveBraces     -- :: [Token] -> [Token]
     , resolveWhenUnless -- :: [Expression] -> [Expression]
     ) where
 
-import Compiler.Data
+import Assembler.Core
 
 import Control.Arrow (first)
 import Data.Maybe    (fromMaybe)

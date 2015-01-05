@@ -1,5 +1,5 @@
 -- |
--- Module      : Compiler.Data
+-- Module      : Assembler.Core
 -- Copyright   : Joe Jevnik
 --
 -- License     : GPL-2
@@ -7,9 +7,9 @@
 -- Stability   : stable
 -- Portability : GHC
 --
--- Data types used in the lexing and compiling process of 16candles source code.
+-- Data types used in the lexing and assembling process of 16candles source code.
 
-module Compiler.Data
+module Assembler.Core
     ( Word8(..)
     , Word16(..)
     , Flag(..)
@@ -99,7 +99,7 @@ showJumpMiss :: JumpMiss -> String
 showJumpMiss (JumpMiss label line) = "Could not resolve label '" ++ label ++ "'"
 
 -- | Shows an 'ExpressionError' in a way suitable to be printed during
--- compilation.
+-- assembly.
 showExprError :: ExpressionError -> String
 showExprError MissingParameters      =
     "Missing parameters"

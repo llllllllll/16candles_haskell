@@ -1,5 +1,5 @@
 -- |
--- Module      : Compiler
+-- Module      : Main
 -- Copyright   : Joe Jevnik
 --
 -- License     : GPL-2
@@ -11,10 +11,10 @@
 
 module Main where
 
-import Compiler.Bytecode
-import Compiler.Data
-import Compiler.Lexer
-import Compiler.Validation
+import Assembler.Bytecode
+import Assembler.Core
+import Assembler.Lexer
+import Assembler.Validation
 
 import Control.Monad                  (when,unless,void)
 import Data.ByteString                (ByteString)
@@ -27,9 +27,9 @@ import System.Directory               (doesFileExist,doesDirectoryExist)
 import System.Environment             (getArgs)
 import System.Exit                    (exitFailure)
 
--- | Compiles the source file into the output file.
-compile :: FilePath -> FilePath -> IO ()
-compile src out = do
+-- | Assemble the source file into the output file.
+assemble :: FilePath -> FilePath -> IO ()
+assemble src out = do
     d <- doesFileExist src
     unless d $ putStrLn ("Cannot find source file '" ++ src ++ "', aborting!")
              >> exitFailure
@@ -66,23 +66,23 @@ handleOpts ([Version,Help],_,_)       = putStrLn versionString
 handleOpts ([Help],_,_)               = putStrLn helpString
 handleOpts ([Version],_,_)            = putStrLn versionString
 handleOpts (_,[],_)                   = putStrLn noArgString
-handleOpts ([OutputFile out],ss,_)    = compile (head ss) out
-handleOpts ([],ss,_)                  = compile (head ss) "a.out"
+handleOpts ([OutputFile out],ss,_)    = assemble (head ss) out
+handleOpts ([],ss,_)                  = assemble(head ss) "a.out"
 
 -- | The help message.
 helpString :: String
 helpString =
     "Usage:\n\n    h16cc [OPTION] SOURCE\n\nWhere SOURCE is the .16c \
-    \source file you wish to compile to the file: 'a.out'.\nThe 16candles \
-    \compiler accecpts the following additional arguments:\n\
+    \source file you wish to assemble to the file: 'a.out'.\nThe 16candles \
+    \assembler accecpts the following additional arguments:\n\
     \\n    -o OUTPUT-FILE   The file to name the output binary.\
     \\n    -v --version     Print version information about the this \
-    \compiler.\n    -h --help        Prints this message.\n"
+    \assembler.\n    -h --help        Prints this message.\n"
 
 -- | The version message.
 versionString :: String
 versionString =
-    "The Haskell 16candles compiler: version 0.1.0.0 (2014.06.28)\n\
+    "The Haskell 16candles assembler: version 0.2.0.0 (2014.06.28)\n\
     \Copyright (C) 2014 Joe Jevnik.\n\
     \This is free software; see the source for copying \
     \conditions.  There is NO\nwarranty; not even for MERCHANTABILITY\
