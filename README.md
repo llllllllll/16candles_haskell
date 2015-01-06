@@ -11,23 +11,19 @@ Building
 
 Simply run:
 
-    $ make
+    $ cabal build
 
-to build the project. The make file is just a light wrapper over ghc because
-it does not carry its own dependencies. Instead, it is equivelent to calling:
+This will build the project with the proper dependencies putting the binary in
+`dist/h16cc/`.
 
-    $ ghc --make Assembler -main-is Assembler -o h16cc
 
-where `ghc --make` will act like a makefile for us, but the first command is
-faster to type than the second one. It also provides:
+To install the executable, use:
 
-    $ make clean
+    $ cabal install
 
-which will just be equivelent to:
+This will put the binary in your cabal bin directory (`$HOME/.cabal/bin/`
+normally).
 
-    $ rm h16cc *.o *.hi Assembler/*.o Assembler/*.hi
-
-but again, it is faster to type make clean.
 
 Usage
 -----
