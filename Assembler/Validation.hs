@@ -11,7 +11,7 @@
 
 
 module Assembler.Validation
-    ( validateSource     -- :: String -> IO Bool
+    ( validateSource     -- :: FilePath -> String -> IO Bool
     , validateExpression -- :: Expression -> Maybe ExpressionError
     ) where
 
@@ -22,22 +22,31 @@ import Control.Arrow (second)
 import Data.Maybe    (isJust,fromMaybe)
 
 -- | Checks if the source string is valid.
-validateSource :: String -> IO Bool
-validateSource src =
-    let es = map (second (fromMaybe (error "validateSource: caught Nothing")))
-             $ filter (isJust . snd) $ map (second validateExpression)
-             $ zip [0..] $ resolveWhenUnless . buildExpressions
-             . resolveBraces . tokenize $ src
-    in case (es,matchBraces src) of
-           ([],Nothing)     -> return True
-           (_,Nothing)      -> mapM_ printErrMsg es >> return False
-           ((e:es'),Just n) -> mapM_ printErrMsg es >> printBraceErr n
-                               >> return False
-           (_,Just n)       -> printBraceErr n >> return False
+validateSource :: FilePath -> String -> IO Bool
+validateSource f src
+    = case lexC16 src of
+          Left e   -> putStrLn ("error: " ++ f ++ ':' : ' ' : e) >> return False
+          Right ts -> let es = map (second
+                                    (fromMaybe
+                                     (error "validateSource: caught Nothing")))
+                               $ filter (isJust . snd)
+                                     $ map (second validateExpression)
+                                     $ zip [0..] $ resolveWhenUnless
+                                     . buildExpressions
+                                     $ resolveBraces ts
+                      in case (es,matchBraces src) of
+                             ([],Nothing)     -> return True
+                             (_,Nothing)      -> mapM_ printErrMsg es
+                                                 >> return False
+                             ((e:es'),Just n) -> mapM_ printErrMsg es
+                                                 >> printBraceErr n
+                                                 >> return False
+                             (_,Just n)       -> printBraceErr n >> return False
   where
-      printBraceErr l    = putStrLn $ "Error: Line " ++ show (l + 1) ++ ":\n  "
+      header             = (("error: " ++ f ++ ":") ++)
+      printBraceErr l    = putStrLn $ header $ show (l + 1) ++ ":\n  "
                            ++ "Mismatched braces"
-      printErrMsg (l,ee) = putStrLn $ "Error: Line " ++ show (l + 1) ++ ":\n  "
+      printErrMsg (l,ee) = putStrLn $ header $ show (l + 1) ++ ":\n  "
                            ++ showExprError ee
 
 -- | Validates a given expression return 'Nothing' if the 'Expression' is valid.

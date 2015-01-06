@@ -5,22 +5,24 @@ name:                h16cc
 version:             0.1.0.0
 
 synopsis:            An assembler for 16candles asm to 16candles bytecode.
--- description:         
 homepage:            https://github.com/llllllllll/h16cc
 license:             GPL-2
 license-file:        LICENSE
 author:              llllllllll
 maintainer:          joejev@gmail.com
--- copyright:           
--- category:            
+copyright:           2014
+category:            Assembler
 build-type:          Simple
 extra-source-files:  ChangeLog, README.md
 cabal-version:       >=1.10
 
 executable h16cc
-  main-is:             Compiler.hs
-  -- other-modules:       
-  -- other-extensions:    
-  build-depends:       base >=4.7 && <4.8, bytestring >=0.10 && <0.11, directory >=1.2 && <1.3
-  -- hs-source-dirs:      
+  main-is:             Assembler.hs
+  build-tools:         alex
+  other-modules:       Assembler.LexerInternal
+  build-depends:       base >=4.7 && <4.8
+                     , bytestring >=0.10 && <0.11
+                     , directory >=1.2 && <1.3
+                     , array >=0.5.0.0
+                     , text >=1.1.1.3
   default-language:    Haskell2010

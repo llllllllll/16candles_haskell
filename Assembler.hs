@@ -34,9 +34,9 @@ assemble src out = do
     unless d $ putStrLn ("Cannot find source file '" ++ src ++ "', aborting!")
              >> exitFailure
     srcString <- readFile src
-    v <- validateSource srcString
+    v <- validateSource src srcString
     unless v exitFailure
-    bs <- toByteCode srcString
+    bs <- toByteCode src srcString
     when (B.null bs) exitFailure
     B.writeFile out bs
     B.appendFile out $ B.singleton 0xff -- OP_TERM
@@ -82,7 +82,7 @@ helpString =
 -- | The version message.
 versionString :: String
 versionString =
-    "The Haskell 16candles assembler: version 0.2.0.0 (2014.06.28)\n\
+    "The Haskell 16candles assembler: version 0.2.0.0 (2015.01.05)\n\
     \Copyright (C) 2014 Joe Jevnik.\n\
     \This is free software; see the source for copying \
     \conditions.  There is NO\nwarranty; not even for MERCHANTABILITY\

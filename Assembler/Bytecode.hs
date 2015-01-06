@@ -25,20 +25,22 @@ import Data.List                      (find)
 import System.Exit                    (exitFailure)
 
 
-toByteCode :: String -> IO ByteString
-toByteCode src = let (ms,bs) = processSrc src
-                 in if null ms
-                      then return $ B.concat $ reverse bs
-                      else mapM_ (putStrLn . errorJumpMiss) ms
-                           >> return B.empty
+toByteCode :: FilePath -> String -> IO ByteString
+toByteCode f src = case lexC16 src of
+                       Left e -> putStrLn ("error: " ++ f ++ ':' : ' ' : e)
+                                 >> return B.empty
+                       Right ts -> let (ms,bs) = processTokens ts
+                                   in if null ms
+                                        then return $ B.concat $ reverse bs
+                                        else mapM_ (putStrLn . errorJumpMiss) ms
+                                                 >> return B.empty
   where
-      processSrc = resolveJumps
-                   . toUnresolvedJumps
-                   . resolveWhenUnless
-                   . buildExpressions
-                   . resolveBraces
-                   . tokenize
-      errorJumpMiss j@(JumpMiss label line) = "Error: Line " ++ show line
+      processTokens = resolveJumps
+                      . toUnresolvedJumps
+                      . resolveWhenUnless
+                      . buildExpressions
+                      . resolveBraces
+      errorJumpMiss j@(JumpMiss label line) = "error: " ++ f ++ ':' : show line
                                               ++ ":\n  " ++ showJumpMiss j
 
 -- -----------------------------------------------------------------------------

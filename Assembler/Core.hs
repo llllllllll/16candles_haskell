@@ -7,7 +7,7 @@
 -- Stability   : stable
 -- Portability : GHC
 --
--- Data types used in the lexing and assembling process of 16candles source code.
+-- Data types used in the lexing and assembling process of 16candles code.
 
 module Assembler.Core
     ( Word8(..)
@@ -46,6 +46,7 @@ data Flag = Version             -- ^ Flag to print version info
           | Help                -- ^ Flag to print help info
           | OutputFile FilePath -- ^ Flag to change output file path
 
+
 -- | The types of 'Token's that can be read.
 data Token = InstrToken Instruction  -- ^ The type of an instruction token.
            | RegToken Register       -- ^ A register or subregister.
@@ -59,7 +60,9 @@ data Token = InstrToken Instruction  -- ^ The type of an instruction token.
            | WhenToken               -- ^ A token for the 'when' command.
            | UnlessToken             -- ^ A token for the 'unless' command.
            | InvalidToken String     -- ^ Any invalid 'Token', with the string.
+           | EOF                     -- ^ End of file token.
              deriving (Eq)
+
 
 -- | Custom 'Show' instance for 'Token'.
 instance Show Token where
@@ -75,6 +78,8 @@ instance Show Token where
     show WhenToken          = "when"
     show UnlessToken        = "unless"
     show (InvalidToken t)   = "invalid: " ++ t
+    show EOF                = "<EOF>"
+
 
 -- | An expression.
 type Expression = [Token]
