@@ -82,7 +82,7 @@ helpString =
 -- | The version message.
 versionString :: String
 versionString =
-    "The Haskell 16candles assembler: version 0.2.0.0 (2015.01.05)\n\
+    "The Haskell 16candles assembler: version 0.2.0.1 (2016.01.11)\n\
     \Copyright (C) 2014 Joe Jevnik.\n\
     \This is free software; see the source for copying \
     \conditions.  There is NO\nwarranty; not even for MERCHANTABILITY\

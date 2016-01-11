@@ -2,7 +2,7 @@
 --  see http://haskell.org/cabal/users-guide/
 
 name:                h16cc
-version:             0.1.0.0
+version:             0.2.0.1
 
 synopsis:            An assembler for 16candles asm to 16candles bytecode.
 homepage:            https://github.com/llllllllll/h16cc
@@ -20,7 +20,7 @@ executable h16cc
   main-is:             Assembler.hs
   build-tools:         alex
   other-modules:       Assembler.LexerInternal
-  build-depends:       base >=4.7 && <4.8
+  build-depends:       base >=4.7
                      , bytestring >=0.10 && <0.11
                      , directory >=1.2 && <1.3
                      , array >=0.5.0.0
